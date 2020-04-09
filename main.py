@@ -2,10 +2,7 @@
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import json
-import os
-import time
-import sys
+import json, os, time, sys, getpass
 
 
 def create_repo(username, password, repo_name, is_private, repo_path="."):
@@ -43,12 +40,15 @@ def create_repo(username, password, repo_name, is_private, repo_path="."):
     create_repo_button = driver.find_element_by_xpath('//*[@id="new_repository"]/div[3]/button')
     create_repo_button.click()
 
+    # close browser
+    driver.close()
+
     # execute all commands
     commands = [
         'mkdir -p %s/%s' % (repo_path, repo_name),
         'cd %s/%s' % (repo_path, repo_name),
         'git init',
-        'echo "# %s" >> README.md' % repo_name,
+        'echo "%s" >> README.md' % repo_name,
         'git add README.md',
         'git commit -m "first commit"',
         'git remote add origin https://github.com/%s/%s.git' % (username, repo_name),
@@ -57,20 +57,32 @@ def create_repo(username, password, repo_name, is_private, repo_path="."):
 
     os.system(" && ".join(commands))
 
-    # close browser
-    driver.close()
-
 
 if __name__ == "__main__":
-    if len(sys.argv) != 6:
-        print("Error, incorrect arguments: username, repo_name, is_private (true or false), repo_path, password", file=sys.stderr)
-        exit()
+    username    = None
+    password    = None
+    repo_name   = None
+    repo_path   = None
+    is_private  = None
 
-    username    =  str(sys.argv[1])
-    repo_name   =  str(sys.argv[2])
-    is_private  = bool(sys.argv[3])
-    repo_path   =  str(sys.argv[4])
-    password    =  str(sys.argv[5])
+    # inputs must be non-empty
+    while not username:
+        username =  input("username > ")
+
+    while not password:
+        password =  getpass.getpass(prompt="password > ", stream=None)
+
+    while not repo_name:
+        repo_name =  input("repo_name > ")
+
+    while not repo_path:
+        repo_path =  input("repo_path > ")
+    # path must not end with '/'
+    if repo_path != '/':
+        repo_path = repo_path.rstrip('/')
+
+    while not is_private in ['y', 'n']:
+        is_private  =  input("is_private (y/n) > ")
 
     create_repo(
         username,
