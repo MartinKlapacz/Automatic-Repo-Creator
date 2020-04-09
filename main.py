@@ -14,15 +14,6 @@ def create_repo(username, password, repo_name, is_private, repo_path="."):
     driver.get("http://www.github.com")
     driver.set_window_size(1500, 1000)
 
-    # read json
-    with open('./infos.json') as credentialsJson:
-        infos       = json.load(credentialsJson)
-        username    = infos["username"]
-        password    = infos["password"]
-        repo_name   = infos["repo_name"]
-        # repo_name must not end with an '/' character
-        is_private  = infos["is_private"]
-        repo_path   = infos["repo_path"]
 
     # go to sign in screen
     go_to_sign_in_button = driver.find_element_by_xpath("/html/body/div[1]/header/div/div[2]/div[2]/a[1]")
@@ -52,17 +43,19 @@ def create_repo(username, password, repo_name, is_private, repo_path="."):
     create_repo_button = driver.find_element_by_xpath('//*[@id="new_repository"]/div[3]/button')
     create_repo_button.click()
 
+    # execute all commands
+    commands = [
+        'mkdir -p %s/%s' % (repo_path, repo_name),
+        'cd %s/%s' % (repo_path, repo_name),
+        'git init',
+        'echo "# %s" >> README.md' % repo_name,
+        'git add README.md',
+        'git commit -m "first commit"',
+        'git remote add origin https://github.com/%s/%s.git' % (username, repo_name),
+        'git push -u origin master'
+    ]
 
-    # repo is now created, execute git commands to init repo locally
-    command = 'mkdir -p %s/%s && cd %s/%s && echo "# TEST" >> README.md && git init && git add README.md && git commit -m "first commit" && git remote add origin https://github.com/%s/%s.git && git push -u origin master' % (
-        repo_path,
-        repo_name,
-        repo_path, 
-        repo_name, 
-        username,
-        repo_name)
-
-    os.system(command)
+    os.system(" && ".join(commands))
 
     # close browser
     driver.close()
@@ -70,19 +63,19 @@ def create_repo(username, password, repo_name, is_private, repo_path="."):
 
 if __name__ == "__main__":
     if len(sys.argv) != 6:
-        print("Error, incorrect arguments: username, password, repo_name, is_private (private or public), repo_path", file=sys.stderr)
+        print("Error, incorrect arguments: username, repo_name, is_private (true or false), repo_path, password", file=sys.stderr)
         exit()
 
-    username    = str(sys.argv[1])
-    password    = str(sys.argv[2])
-    repo_name   = str(sys.argv[3])
-    is_private  = bool(sys.argv[4])
-    repo_path   = str(sys.argv[5])
+    username    =  str(sys.argv[1])
+    repo_name   =  str(sys.argv[2])
+    is_private  = bool(sys.argv[3])
+    repo_path   =  str(sys.argv[4])
+    password    =  str(sys.argv[5])
 
     create_repo(
         username,
         password,
         repo_name,
         is_private,
-        repo_name
-        )
+        repo_path
+    )
