@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -38,7 +38,7 @@ def create_repo(username, password, repo_name, is_private, repo_path="."):
 
     time.sleep(1.5)
     create_repo_button = driver.find_element_by_xpath('//*[@id="new_repository"]/div[3]/button')
-    create_repo_button.click()
+    # create_repo_button.click()
 
     # close browser
     driver.close()
@@ -67,22 +67,22 @@ if __name__ == "__main__":
 
     # inputs must be non-empty
     while not username:
-        username =  input("username > ")
+        username =  raw_input("username > ")
 
     while not password:
         password =  getpass.getpass(prompt="password > ", stream=None)
 
     while not repo_name:
-        repo_name =  input("repo_name > ")
+        repo_name =  raw_input("repo_name > ")
 
     while not repo_path:
-        repo_path =  input("repo_path > ")
+        repo_path =  raw_input("repo_path > ")
     # path must not end with '/'
     if repo_path != '/':
         repo_path = repo_path.rstrip('/')
 
     while not is_private in ['y', 'n']:
-        is_private  =  input("is_private (y/n) > ")
+        is_private  =  raw_input("is_private (y/n) > ")
 
     create_repo(
         username,
@@ -91,3 +91,4 @@ if __name__ == "__main__":
         is_private,
         repo_path
     )
+    
